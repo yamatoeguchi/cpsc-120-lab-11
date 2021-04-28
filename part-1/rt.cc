@@ -40,15 +40,19 @@ Color RayColor(const Ray& r, const Sphere& world) {
     Vec3 light{1, 1, 0.25};
     
     // TODO: set up the vectors need, see the README.md
-    Vec3 to_light_vector = Vec3{0, 0, 0};
-    Vec3 unit_normal = Vec3{0, 0, 0};
-    Vec3 to_viewer = Vec3{0, 0, 0};
-    Vec3 reflection = Vec3{0, 0, 0};
+    Vec3 to_light_vector = UnitVector(light - rec.p);
+    Vec3 unit_normal = UnitVector(rec.normal);
+    Vec3 to_viewer = UnitVector(-rec.p);
+    Vec3 reflection = Reflect(to_light_vector, unit_normal);
+
 
     // TODO: Calculate phong_ambient, phong_diffuse, and phong_specular
-    Color phong_ambient = sphere_color;
-    Color phong_diffuse = sphere_color;
-    Color phong_specular = sphere_color;
+    Color phong_ambient = kAmbientReflection * sphere_color;
+    Color phong_diffuse = kDiffuseReflection *
+                          Dot(to_light_vector, unit_normal) * sphere_color;
+    Color phong_specular = 
+        kSpecularReflection *
+        std::pow(Dot(reflection, to_viewer), kSpecularShininess) * sphere_color;
 
     Color phong = phong_ambient + phong_diffuse + phong_specular;
     c = Clamp(phong, 0, 1);
@@ -100,7 +104,7 @@ int main(int argc, char const* argv[]) {
   /// 16:9 is the ratio used for wide format movies. Traditional 35mm film
   /// photographs have an image that is 36 mm x 24 mm which has an aspect
   /// ratio of 36:24 or 1.5.
-  const double kAspectRatio = 16.0 / 9.0;
+  const double kAspectRatio = 36.0 / 24.0;
   // Set the image width to 400 pixels
   const int kImageWidth = 800;
   // Calculate the height of the image using the width and aspect ratio.
@@ -121,7 +125,7 @@ int main(int argc, char const* argv[]) {
   cout << "Image: " << image.height() << "x" << image.width() << "\n";
 
   /// World definition in main
-  auto world = Sphere(Point3(0, 0, -1), 0.5);
+  auto world = Sphere(Point3(0, 0, -1), 0.25);
 
   /// Camera definition in main
   /// The [viewport](https://en.wikipedia.org/wiki/Viewport) is the
