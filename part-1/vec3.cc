@@ -1,3 +1,13 @@
+// Yamato Eguchi
+// CPSC-120-01
+// 2021-04-27
+// yamatoe1227@csu.fullerton.edu
+// @yamatoeguchi
+//
+// Lab 11-01
+//
+// This is my sphere lab.
+//
 
 #include "vec3.h"
 

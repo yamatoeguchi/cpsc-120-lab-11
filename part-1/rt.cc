@@ -47,7 +47,7 @@ Color RayColor(const Ray& r, const Sphere& world) {
     const double kAmbientReflection = 0.3;
     const double kDiffuseReflection = 0.7;
     const double kSpecularReflection = 0.5;
-    const double kSpecularShininess = 32.0;
+    const double kSpecularShininess = 50.0;
     Vec3 light{1, 1, 0.25};
     
     // TODO: set up the vectors need, see the README.md

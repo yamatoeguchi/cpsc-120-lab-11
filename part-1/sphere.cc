@@ -1,3 +1,13 @@
+// Yamato Eguchi
+// CPSC-120-01
+// 2021-04-27
+// yamatoe1227@csu.fullerton.edu
+// @yamatoeguchi
+//
+// Lab 11-01
+//
+// This is my sphere lab.
+//
 
 #include "sphere.h"
 
@@ -6,13 +16,13 @@
 Point3 Sphere::center() const { 
   // TODO
   // This is a place holder so the program doesn't crash; remove it
-  return Point3{0, 0, 0};
+  return center_;
 }
 
 double Sphere::radius() const { 
   // TODO
   // This is a place holder so the program doesn't crash; remove it
-  return NAN;
+  return radius_;
 }
 
 bool Sphere::hit(const Ray& r, double t_min, double t_max,
@@ -26,16 +36,16 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max,
   // b is 2 d \cdot (O - C)
   // and c is (O - C) \cdot (O - C) - r^2
   // TODO calculate a
-  double a = NAN;
+  double a = Dot(r.direction(), r.direction());
   // TODO calculate b
-  double b = NAN;
+  double b = 2 * Dot(r.direction(), oc);
   // TODO calculate c
-  double c = NAN;
+  double c = Dot(oc, oc) - radius();
   
   // If the discriminant is greater than zero then the ray strikes the
   // sphere 1 or more times; else the ray does not strike the sphere
   // TODO caluclate the discriminant
-  double discriminant = NAN;
+  double discriminant = ((b * b) - 4 * a * c);
 
   // Short circuit out of the function if the discriminant is less than zero.
   // There are no real roots when discriminant is less than zero.
