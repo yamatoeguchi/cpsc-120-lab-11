@@ -17,6 +17,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "image.h"
 #include "ray.h"
@@ -30,44 +31,36 @@ using namespace std;
 /// Given a Ray \p r, calculate the color that is visible to the ray.
 /// \param r A ray eminating from the camera through the scene
 /// \returns The color visible from that ray
-Color RayColor(const Ray& r, const Sphere& world) {
+Color RayColor(const Ray& r, const vector<Sphere>& world) {
   HitRecord rec;
   Color c;
-  // check to see if the ray intersects with the world
-  if (world.hit(r, 0, kInfinity, rec)) {
-    
-    // Recommendation: I suggest just setting the color to something obvious
-    // like red, c = Color{1, 0, 0};
-    // until you get the ray-sphere intersection working. Then you can
-    // come back and work on the shading to get the sphere looking beautiful.
-    
-    // This is the base color of the sphere. You may set this color
-    // to whatever you like - after you get everything working.
-    Color sphere_color{1, 1, 0};
-    const double kAmbientReflection = 0.3;
-    const double kDiffuseReflection = 0.7;
-    const double kSpecularReflection = 0.5;
-    const double kSpecularShininess = 50.0;
-    Vec3 light{1, 1, 0.25};
-    
-    // TODO: set up the vectors need, see the README.md
-    Vec3 to_light_vector = UnitVector(light - rec.p);
-    Vec3 unit_normal = UnitVector(rec.normal);
-    Vec3 to_viewer = UnitVector(-rec.p);
-    Vec3 reflection = Reflect(to_light_vector, unit_normal);
+  bool hit_sphere = false;
+  Color sphere_color{1, 1, 0};
+  const double kAmbientReflection = 0.3;
+  const double kDiffuseReflection = 0.7;
+  const double kSpecularReflection = 0.5;
+  const double kSpecularShininess = 32.0;
+  Vec3 light{1, 1, 0.25};
+  
+  for(const auto& sphere : world){
+    if (sphere.hit(r, 0, kInfinity, rec)) {
+      hit_sphere = true;
+        // do shading
+      Vec3 to_light_vector = UnitVector(light - rec.p);
+      Vec3 unit_normal = UnitVector(rec.normal);
+      Vec3 to_viewer = UnitVector(-rec.p);
+      Vec3 reflection = UnitVector(Reflect(to_light_vector, unit_normal));
 
+      // TODO: Calculate phong_ambient, phong_diffuse, and phong_specular
+      Color phong_ambient = kAmbientReflection * sphere_color;
+      Color phong_diffuse = sphere_color * Dot(unit_normal, to_light_vector) * kDiffuseReflection;
+      Color phong_specular = sphere_color * std::pow(Dot(reflection, to_viewer), kSpecularShininess) * kSpecularReflection;
 
-    // TODO: Calculate phong_ambient, phong_diffuse, and phong_specular
-    Color phong_ambient = kAmbientReflection * sphere_color;
-    Color phong_diffuse = kDiffuseReflection *
-                          Dot(to_light_vector, unit_normal) * sphere_color;
-    Color phong_specular = 
-        kSpecularReflection *
-        std::pow(Dot(reflection, to_viewer), kSpecularShininess) * sphere_color;
-
-    Color phong = phong_ambient + phong_diffuse + phong_specular;
-    c = Clamp(phong, 0, 1);
-  } else {
+      Color phong = phong_ambient + phong_diffuse + phong_specular;
+      c = Clamp(phong, 0, 1);
+    }
+  }
+  if(not hit_sphere){
     // The ray didn't hit anything, it must be the sky so lets color it in.
     Color sky_top{0.4980392156862745, 0.7450980392156863, 0.9215686274509803};
     Color sky_bottom{1, 1, 1};
@@ -115,7 +108,7 @@ int main(int argc, char const* argv[]) {
   /// 16:9 is the ratio used for wide format movies. Traditional 35mm film
   /// photographs have an image that is 36 mm x 24 mm which has an aspect
   /// ratio of 36:24 or 1.5.
-  const double kAspectRatio = 36.0 / 24.0;
+  const double kAspectRatio = 16.0 / 9.0;
   // Set the image width to 400 pixels
   const int kImageWidth = 800;
   // Calculate the height of the image using the width and aspect ratio.
@@ -136,7 +129,10 @@ int main(int argc, char const* argv[]) {
   cout << "Image: " << image.height() << "x" << image.width() << "\n";
 
   /// World definition in main
-  auto world = Sphere(Point3(0, 0, -1), 0.25);
+  vector<Sphere> world;
+  world.push_back(Sphere(Point3(0, 0, -1), 0.5));
+  world.push_back(Sphere(Point3(-0.5, 0.75, -1), 0.5));
+  //auto world = Sphere(Point3(0, 0, -1), 0.5);
 
   /// Camera definition in main
   /// The [viewport](https://en.wikipedia.org/wiki/Viewport) is the

@@ -40,7 +40,7 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max,
   // TODO calculate b
   double b = 2 * Dot(r.direction(), oc);
   // TODO calculate c
-  double c = Dot(oc, oc) - radius();
+  double c = Dot(oc, oc) - Square(radius_);
   
   // If the discriminant is greater than zero then the ray strikes the
   // sphere 1 or more times; else the ray does not strike the sphere
